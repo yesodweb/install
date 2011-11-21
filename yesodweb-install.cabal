@@ -1,4 +1,4 @@
-name:            yesodweb
+name:            yesodweb-install
 version:         0.0
 license:         BSD3
 license-file:    LICENSE
@@ -8,8 +8,9 @@ synopsis:        build Yesod from head
 description:
     a sandboxed build of Yesod
 
-    git clone http://github.com/yesodweb/yesodweb
-    cabal-dev install && dist/install/install
+    git clone http://github.com/yesodweb/install yesodweb
+    cd yesodweb
+    cabal-dev install && dist/build/install/install
 
 category:        Web, Yesod
 stability:       Stable
