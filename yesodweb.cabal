@@ -1,0 +1,32 @@
+name:            yesodweb
+version:         0.0
+license:         BSD3
+license-file:    LICENSE
+author:          Greg Weber <greg@gregweber.info>
+maintainer:      Greg Weber <greg@gregweber.info>
+synopsis:        build Yesod from head
+description:
+    a sandboxed build of Yesod
+
+    git clone http://github.com/yesodweb/yesodweb
+    cabal-dev install && dist/install/install
+
+category:        Web, Yesod
+stability:       Stable
+cabal-version:   >= 1.8
+build-type:      Simple
+homepage:        http://www.yesodweb.com/
+
+flag ghc7
+
+executable install
+    main-is: install.hs
+
+    if flag(ghc7)
+        build-depends:   base            >= 4.3      && < 5
+        cpp-options:     -DGHC7
+    else
+        build-depends:   base            >= 4        && < 4.3
+    build-depends:   shellish
+
+    ghc-options:     -Wall

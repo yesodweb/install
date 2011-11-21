@@ -1,0 +1,72 @@
+name:            build
+version:         0.0
+license:         BSD3
+license-file:    LICENSE
+author:          Greg Weber <greg@gregweber.info>
+maintainer:      Greg Weber <greg@gregweber.info>
+synopsis:        build Yesod from head
+description:
+    a sandboxed build of Yesod
+
+    git clone http://github.com/yesodweb/yesodweb
+    cabal-dev install && dist/install/install
+
+category:        Web, Yesod
+stability:       Stable
+cabal-version:   >= 1.8
+build-type:      Simple
+homepage:        http://www.yesodweb.com/
+
+flag ghc7
+
+library
+    if flag(ghc7)
+        build-depends:   base            >= 4.3      && < 5
+        cpp-options:     -DGHC7
+    else
+        build-depends:   base            >= 4        && < 4.3
+    build-depends:   time                >= 1.1.4    && < 1.4
+                   , yesod-core
+                   , yesod-json
+                   , yesod-static
+                   , yesod-persistent
+                   , yesod-newsfeed
+                   , yesod-form
+                   , yesod-auth
+                   , yesod-sitemap
+                   , yesod-default
+                   , yesod
+                   , wai                 >= 0.4      && < 0.5
+                   , wai-extra           >= 0.4.1    && < 0.5
+                   , bytestring          >= 0.9.1.4  && < 0.10
+                   , text                >= 0.5      && < 0.12
+                   , template-haskell
+                   , path-pieces         >= 0.0      && < 0.1
+                   , hamlet              >= 0.10     && < 0.11
+                   , shakespeare         >= 0.10     && < 0.11
+                   , shakespeare-js      >= 0.10     && < 0.11
+                   , shakespeare-css     >= 0.10     && < 0.11
+                   , blaze-builder       >= 0.2.1    && < 0.4
+                   , transformers        >= 0.2      && < 0.3
+                   , clientsession       >= 0.7.3.1  && < 0.8
+                   , random              >= 1.0.0.2  && < 1.1
+                   , cereal              >= 0.2      && < 0.4
+                   , old-locale          >= 1.0.0.2  && < 1.1
+                   , failure             >= 0.1      && < 0.2
+                   , containers          >= 0.2      && < 0.5
+                   , monad-control       >= 0.2      && < 0.3
+                   , enumerator          >= 0.4.7    && < 0.5
+                   , cookie              >= 0.3      && < 0.4
+                   , blaze-html          >= 0.4.1.3  && < 0.5
+                   , http-types          >= 0.6.5    && < 0.7
+                   , case-insensitive    >= 0.2      && < 0.4
+                   , parsec              >= 2        && < 3.2
+                   , directory           >= 1        && < 1.2
+                   , data-object         >= 0.3      && < 0.4
+                   , data-object-yaml    >= 0.3      && < 0.4
+                   -- for logger. Probably logger should be a separate package
+                   , strict-concurrency  >= 0.2.4    && < 0.2.5
+                   , vector              >= 0.9      && < 0.10
+                   , aeson-native        >= 0.3.3.1  && < 0.4
+
+    ghc-options:     -Wall
