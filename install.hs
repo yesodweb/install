@@ -42,6 +42,8 @@ install_yesod :: ShIO ()
 install_yesod = do
   chdirP "build" $ do
     _<- cabal_install "cabal-dev"
+    -- clone_yesod_repo "cabal-dev" -- need add-source-file branch
+    -- cabal_dev "add-source-file" "build/sources.txt"
     localDeps <- liftIO $ fmap lines $ readFile "build/sources.txt"
     mapM_ (apEcho addSource) localDeps 
     echo ""
@@ -68,9 +70,8 @@ cabal_dev = subCommand "cabal-dev"
 subCommand :: String ->  String ->  [String] -> ShIO String
 subCommand com subCom args = run com ([subCom] ++ args)
 
-clone_yesod :: ShIO ()
-clone_yesod = do
-  flip mapM_ ["hamlet","persistent","wai","yesod"] $ \repo -> do
+clone_yesod_repo :: String -> ShIO ()
+clone_yesod_repo repo = do
     b <-  echoAp repo test_d
     _<- if b
           then chdir repo $ git "pull" ["origin","master"]
@@ -78,3 +79,7 @@ clone_yesod = do
             _<-  git "clone" ["http://github.com/yesodweb/" ++ repo]
             chdir repo $ git "submodule" ["update","--init"]
     return ()
+
+clone_yesod :: ShIO ()
+clone_yesod =
+  flip mapM_ ["hamlet","persistent","wai","yesod"] clone_yesod_repo
