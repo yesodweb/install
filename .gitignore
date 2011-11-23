@@ -6,3 +6,4 @@
 /cabal-dev
 /dist
 /.virthualenv
+/.hsenv
