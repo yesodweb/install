@@ -9,7 +9,7 @@ description:
     a sandboxed build of Yesod
 
     git clone http://github.com/yesodweb/install yesodweb
-    cd yesodweb
+    cd yesodweb/install
     cabal-dev install && dist/build/install/install
 
 category:        Web, Yesod

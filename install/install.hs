@@ -40,11 +40,11 @@ main = do
 
 install_yesod :: ShIO ()
 install_yesod = do
-  chdirP "build" $ do
+  chdirP "../build" $ do
     _<- cabal_install "cabal-dev"
     -- clone_yesod_repo "cabal-dev" -- need add-source-file branch
     -- cabal_dev "add-source-file" "build/sources.txt"
-    localDeps <- liftIO $ fmap lines $ readFile "build/sources.txt"
+    localDeps <- liftIO $ fmap lines $ readFile "../build/sources.txt"
     mapM_ (apEcho addSource) localDeps 
     echo ""
     echo "Doing a sandboxed build. This can take a while"
