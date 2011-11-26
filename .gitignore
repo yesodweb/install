@@ -4,6 +4,7 @@
 /persistent
 
 /cabal-dev
-/dist
+/install/cabal-dev
+dist/
 /.virthualenv
 /.hsenv
