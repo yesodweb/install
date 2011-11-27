@@ -2,6 +2,9 @@
 /wai
 /yesod
 /persistent
+/authenticate
+/css-text
+/haskell-xss-sanitize
 
 /cabal-dev
 /install/cabal-dev
