@@ -5,6 +5,8 @@
 /authenticate
 /css-text
 /haskell-xss-sanitize
+/maintenance
+/path-pieces
 
 /cabal-dev
 /install/cabal-dev
