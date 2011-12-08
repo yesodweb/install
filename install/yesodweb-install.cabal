@@ -20,7 +20,7 @@ homepage:        http://www.yesodweb.com/
 
 flag ghc7
 
-executable install
+executable yesodweb-install
     main-is: install.hs
 
     if flag(ghc7)

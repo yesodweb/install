@@ -1,4 +1,5 @@
 import Shellish
+import System.Environment (getArgs)
 
 -- bind some arguments to run
 -- command :: String -> [String] -> [String] -> ShIO String
@@ -6,8 +7,8 @@ import Shellish
 {-apEcho :: (String -> ShIO a) -> String -> ShIO a-}
 {-apEcho action str = echo str >> (action str)-}
 
-command1 :: String ->  [String] ->  String -> ShIO String
-command1 com args one_more_arg = run com (args ++ [one_more_arg])
+{-command1 :: String ->  [String] ->  String -> ShIO String-}
+{-command1 com args one_more_arg = run com (args ++ [one_more_arg])-}
 
 -- log the string and apply it to the action
 echoAp :: String -> (String -> ShIO a) -> ShIO a
@@ -16,8 +17,8 @@ echoAp str action = echo str >> (action str)
 chdir :: FilePath -> ShIO a -> ShIO a
 chdir dir action = chdir1 dir (\_ -> action)
 
-chdirP :: FilePath -> ShIO a -> ShIO a
-chdirP dir action = chdir1 dir (\d -> liftIO (print d) >> action)
+{-chdirP :: FilePath -> ShIO a -> ShIO a-}
+{-chdirP dir action = chdir1 dir (\d -> liftIO (print d) >> action)-}
 
 chdir1 :: FilePath -> (FilePath -> ShIO a) -> ShIO a
 chdir1 dir action = do
@@ -29,43 +30,39 @@ chdir1 dir action = do
 
 main :: IO ()
 main = do
+  args <- getArgs
   shellish $ do
     verbosely $ do
-      chdirP ".." $ do
-        clone_yesod
-        _<- clone_yesod_repo "cabal-dev"
-        _<- chdirP "cabal-dev" $ do
-          git "checkout" ["origin/add-source-file"]
-          cabal_install "./"
-        install_yesod
+      if args == ["--install"] then install_yesod
+        else do
+          clone_yesod
+          echo "please update your global cabal infrastructure:"
+          echo "    cabal update"
+          echo "    cabal install Cabal cabal-install cabal-dev cabal-src virthualenv"
+          echo ""
+          echo "You can optionally (recommended) use virthualenv with:"
+          echo "    virthualenv --name=yesod"
+          echo "    ./virthualenv/bin/activate"
+          echo ""
+          echo "Then run:"
+          echo "    install/dist/build/install/yesodweb-install --install"
 
 install_yesod :: ShIO ()
 install_yesod = do
-  chdirP "build" $ do
-    _<- cabal_dev "add-source-list" ["../sources.txt"]
-    echo ""
-    echo "Doing a sandboxed build. This can take a while"
-    echo "It isn't strictly necessary, but helps everyone know that things are in working order"
-    echo "You can start hacking on and using the Yesod repos now."
-    readme
-    _<- cabal_dev "install" []
-    echo ""
-    echo "Yesod successfully built from HEAD on your machine."
-    readme
-  where
-    readme = echo "please see the yesod README for instructions on hacking and using with your application."
+  flip mapM_ yesodRepos $ \repo -> do
+    chdir repo $ run "script/install" []
 
-cabal_install :: String -> ShIO String
-cabal_install = command1 "cabal" ["install"]
+{-cabal_install :: [String] -> ShIO String-}
+{-cabal_install = cabal "install"-}
+
+{-cabal :: String ->  [String] -> ShIO String-}
+{-cabal = subCommand "cabal"-}
 
 git :: String ->  [String] -> ShIO String
 git = subCommand "git"
 
 yesodweb_clone :: String -> ShIO String
 yesodweb_clone repo = git "clone" ["http://github.com/yesodweb/" ++ repo]
-
-cabal_dev :: String ->  [String] -> ShIO String
-cabal_dev = subCommand "cabal-dev"
 
 subCommand :: String ->  String ->  [String] -> ShIO String
 subCommand com subCom args = run com ([subCom] ++ args)
@@ -80,6 +77,9 @@ clone_yesod_repo repo = do
             chdir repo $ git "submodule" ["update","--init"]
     return ()
 
+yesodRepos :: [String]
+yesodRepos = ["hamlet","persistent","wai","yesod"]
+
 clone_yesod :: ShIO ()
 clone_yesod =
-  flip mapM_ ["hamlet","persistent","wai","yesod"] clone_yesod_repo
+  flip mapM_ yesodRepos clone_yesod_repo
