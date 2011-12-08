@@ -36,6 +36,8 @@ main = do
       if args == ["--install"] then install_yesod
         else do
           clone_yesod
+          echo ""
+          echo ""
           echo "please update your global cabal infrastructure:"
           echo "    cabal update"
           echo "    cabal install Cabal cabal-install cabal-dev cabal-src virthualenv"
@@ -45,12 +47,13 @@ main = do
           echo "    ./virthualenv/bin/activate"
           echo ""
           echo "Then run:"
-          echo "    install/dist/build/install/yesodweb-install --install"
+          echo "    install/dist/build/yesodweb-install/yesodweb-install --install"
 
 install_yesod :: ShIO ()
 install_yesod = do
   flip mapM_ yesodRepos $ \repo -> do
-    chdir repo $ run "script/install" []
+    echo repo
+    chdir repo $ run "scripts/install" []
 
 {-cabal_install :: [String] -> ShIO String-}
 {-cabal_install = cabal "install"-}
