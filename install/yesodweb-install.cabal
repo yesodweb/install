@@ -28,6 +28,6 @@ executable yesodweb-install
         cpp-options:     -DGHC7
     else
         build-depends:   base            >= 4        && < 4.3
-    build-depends:   shellish
+    build-depends:   text, shelly
 
     ghc-options:     -Wall

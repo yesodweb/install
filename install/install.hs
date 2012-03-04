@@ -1,41 +1,22 @@
-import Shellish
+{-# LANGUAGE OverloadedStrings #-}
+import Shelly
 import System.Environment (getArgs)
-
--- bind some arguments to run
--- command :: String -> [String] -> [String] -> ShIO String
--- command com args more_args = run com (args ++ more_args)
-{-apEcho :: (String -> ShIO a) -> String -> ShIO a-}
-{-apEcho action str = echo str >> (action str)-}
-
-{-command1 :: String ->  [String] ->  String -> ShIO String-}
-{-command1 com args one_more_arg = run com (args ++ [one_more_arg])-}
+import Data.Text.Lazy (Text)
+import Control.Monad (forM_)
+import Data.Monoid ((<>))
 
 -- log the string and apply it to the action
-echoAp :: String -> (String -> ShIO a) -> ShIO a
-echoAp str action = echo str >> (action str)
-
-chdir :: FilePath -> ShIO a -> ShIO a
-chdir dir action = chdir1 dir (\_ -> action)
-
-{-chdirP :: FilePath -> ShIO a -> ShIO a-}
-{-chdirP dir action = chdir1 dir (\d -> liftIO (print d) >> action)-}
-
-chdir1 :: FilePath -> (FilePath -> ShIO a) -> ShIO a
-chdir1 dir action = do
-  d <- pwd
-  cd dir
-  r <- action dir
-  cd d
-  return r
+echoAp :: Text -> (Text -> ShIO a) -> ShIO a
+echoAp str action = echo str >> action str
 
 main :: IO ()
 main = do
   args <- getArgs
-  shellish $ do
-    verbosely $ do
-      if args == ["--install"] then install_yesod
+  shelly $
+    verbosely $
+      if args == ["--install"] then installYesod
         else do
-          clone_yesod
+          cloneYesod
           echo ""
           echo ""
           echo "please update your global cabal infrastructure:"
@@ -49,9 +30,9 @@ main = do
           echo "Then run:"
           echo "    install/dist/build/yesodweb-install/yesodweb-install --install"
 
-install_yesod :: ShIO ()
-install_yesod = do
-  flip mapM_ yesodRepos $ \repo -> do
+installYesod :: ShIO ()
+installYesod =
+  forM_ yesodRepos $ \repo -> do
     echo repo
     chdir repo $ run "scripts/install" []
 
@@ -61,28 +42,38 @@ install_yesod = do
 {-cabal :: String ->  [String] -> ShIO String-}
 {-cabal = subCommand "cabal"-}
 
-git :: String ->  [String] -> ShIO String
+git :: Text ->  [Text] -> ShIO Text
 git = subCommand "git"
 
-yesodweb_clone :: String -> ShIO String
-yesodweb_clone repo = git "clone" ["http://github.com/yesodweb/" ++ repo]
+yesodwebClone :: Text -> ShIO Text
+yesodwebClone repo = git "clone" ["http://github.com/yesodweb/" <> repo]
 
-subCommand :: String ->  String ->  [String] -> ShIO String
-subCommand com subCom args = run com ([subCom] ++ args)
+subCommand :: Text ->  Text ->  [Text] -> ShIO Text
+subCommand com subCom args = run com (subCom:args)
 
-clone_yesod_repo :: String -> ShIO ()
-clone_yesod_repo repo = do
-    b <-  echoAp repo test_d
-    _<- if b
-          then chdir repo $ git "status" [] -- git "pull" ["origin","master"]
-          else do
-            _<-  yesodweb_clone repo
-            chdir repo $ git "submodule" ["update","--init"]
-    return ()
-
-yesodRepos :: [String]
+yesodRepos :: [Text]
 yesodRepos = ["hamlet","persistent","wai","yesod"]
 
-clone_yesod :: ShIO ()
-clone_yesod =
-  flip mapM_ yesodRepos clone_yesod_repo
+cloneYesod :: ShIO ()
+cloneYesod =
+  forM_ yesodRepos cloneYesodRepo
+  where
+    cloneYesodRepo :: Text -> ShIO ()
+    cloneYesodRepo repo = do
+        b <-  echoAp repo test_d
+        _<- if b
+              then chdir repo $ git "status" [] -- git "pull" ["origin","master"]
+              else do
+                _<-  yesodwebClone repo
+                chdir repo $ git "submodule" ["update","--init"]
+        return ()
+
+{-apEcho :: (String -> ShIO a) -> String -> ShIO a-}
+{-apEcho action str = echo str >> (action str)-}
+
+{-command1 :: String ->  [String] ->  String -> ShIO String-}
+{-command1 com args one_more_arg = run com (args ++ [one_more_arg])-}
+
+
+{-chdirP :: FilePath -> ShIO a -> ShIO a-}
+{-chdirP dir action = chdir1 dir (\d -> liftIO (print d) >> action)-}
